@@ -79,21 +79,5 @@ async def on_message(message):
     # Pass the feedback to the RuleEngine for updating rules
     rule_engine.update_rule(message.content, feedback)
 
-    # Check if the message is from Eris herself and not a user
-    if message.author == client.user:
-        # Check if the response is not None, indicating that
-        # Eris generated a response
-        if response is not None:
-            # Create a new rule with the input pattern as the
-            # original message content and the output pattern as
-            # the generated response
-            new_rule = Rule(
-                input_pattern=message.content,
-                output_pattern=response
-            )
-            # Add the new rule to the RuleDB and RuleEngine
-            rule_db.add_rule(new_rule)
-            rule_engine.add_rule(new_rule)
-
 
 client.run(TOKEN)
