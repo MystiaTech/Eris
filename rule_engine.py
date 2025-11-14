@@ -6,6 +6,7 @@ class Rule:
     def __init__(self, input_pattern, output_pattern):
         self.input_pattern = input_pattern
         self.output_pattern = output_pattern
+        self.feedback_history = []  # Store feedback ratings for analysis
 
     def match(self, user_input):
         # Implement matching logic here
@@ -23,15 +24,22 @@ class Rule:
             user_feedback: Rating from 1-5, or None if no feedback given
 
         Note:
-            Currently stores feedback for potential future use.
+            Stores feedback in feedback_history for analysis.
             Could be extended to adjust output_pattern based on ratings.
         """
-        # Store feedback for potential future enhancements
-        # Low ratings (1-2) could trigger rule modification
-        # High ratings (4-5) reinforce the rule
-        if user_feedback is not None and user_feedback < 3:
-            # Future enhancement: adjust or flag rule for review
-            pass
+        # Store feedback with timestamp for future analysis
+        if user_feedback is not None:
+            feedback_entry = {
+                'rating': user_feedback,
+                'timestamp': str(datetime.datetime.now()),
+                'user_input': user_input
+            }
+            self.feedback_history.append(feedback_entry)
+
+            # Log low ratings for monitoring
+            if user_feedback < 3:
+                print(f"Low rating ({user_feedback}) received for rule: "
+                      f"'{self.input_pattern}' -> '{self.output_pattern}'")
 
 
 class RuleDB:
