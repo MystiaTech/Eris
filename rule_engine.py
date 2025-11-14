@@ -1,6 +1,7 @@
 import sqlite3
 import datetime
 
+
 class Rule:
     def __init__(self, input_pattern, output_pattern):
         self.input_pattern = input_pattern
@@ -8,13 +9,30 @@ class Rule:
 
     def match(self, user_input):
         # Implement matching logic here
-        # For example, you can check if the user_input matches the input_pattern
-        # using a regular expression or any other suitable matching technique
+        # For example, you can check if the user_input matches
+        # the input_pattern using a regular expression or any other
+        # suitable matching technique
         return self.input_pattern in user_input
 
     def update(self, user_input, user_feedback):
-        # Implement rule update logic here
-        pass
+        """
+        Update rule based on user feedback.
+
+        Args:
+            user_input: The input that matched this rule
+            user_feedback: Rating from 1-5, or None if no feedback given
+
+        Note:
+            Currently stores feedback for potential future use.
+            Could be extended to adjust output_pattern based on ratings.
+        """
+        # Store feedback for potential future enhancements
+        # Low ratings (1-2) could trigger rule modification
+        # High ratings (4-5) reinforce the rule
+        if user_feedback is not None and user_feedback < 3:
+            # Future enhancement: adjust or flag rule for review
+            pass
+
 
 class RuleDB:
     def __init__(self, db_name):
@@ -22,23 +40,38 @@ class RuleDB:
         self.cursor = self.conn.cursor()
 
         # Create rules table if not exists
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS rules
-                            (input_pattern TEXT PRIMARY KEY, output_pattern TEXT, last_changed TEXT)''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS rules (
+                input_pattern TEXT PRIMARY KEY,
+                output_pattern TEXT,
+                last_changed TEXT
+            )
+        ''')
         self.conn.commit()
 
     def add_rule(self, rule):
-        # Add rule to the database, handle exceptions if rule already exists
+        # Add rule to the database
+        # Handle exceptions if rule already exists
         try:
-            self.cursor.execute("INSERT INTO rules (input_pattern, output_pattern, last_changed) VALUES (?, ?, ?)",
-                                (rule.input_pattern, rule.output_pattern, str(datetime.datetime.now())))
+            self.cursor.execute(
+                "INSERT INTO rules "
+                "(input_pattern, output_pattern, last_changed) "
+                "VALUES (?, ?, ?)",
+                (rule.input_pattern, rule.output_pattern,
+                 str(datetime.datetime.now()))
+            )
             self.conn.commit()
         except sqlite3.IntegrityError:
             print("Rule already exists in the database.")
 
     def update_rule(self, rule):
         # Update the rule in the database
-        self.cursor.execute("UPDATE rules SET output_pattern = ?, last_changed = ? WHERE input_pattern = ?",
-                            (rule.output_pattern, str(datetime.datetime.now()), rule.input_pattern))
+        self.cursor.execute(
+            "UPDATE rules SET output_pattern = ?, last_changed = ? "
+            "WHERE input_pattern = ?",
+            (rule.output_pattern, str(datetime.datetime.now()),
+             rule.input_pattern)
+        )
         self.conn.commit()
 
     def get_rules(self):
@@ -51,6 +84,7 @@ class RuleDB:
             rule = Rule(input_pattern, output_pattern)
             rules.append(rule)
         return rules
+
 
 class RuleEngine:
     def __init__(self, rule_db):
@@ -65,8 +99,8 @@ class RuleEngine:
 
     def match_rule(self, user_input):
         # Implement rule matching logic here
-        # Iterate through the rules and check if the user_input matches any of the input_patterns
-        # using the match() method of each rule
+        # Iterate through the rules and check if the user_input
+        # matches any of the input_patterns using the match() method
         for rule in self.rules:
             if rule.match(user_input):
                 return rule
@@ -92,3 +126,4 @@ class RuleEngine:
         matching_rule = self.match_rule(user_input)
         if matching_rule:
             return matching_rule.output_pattern
+        return None
