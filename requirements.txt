@@ -1,0 +1,7 @@
+# Eris Discord Bot Requirements
+
+# Discord API wrapper
+discord.py>=2.0.0
+
+# Environment variable management
+python-dotenv>=0.19.0

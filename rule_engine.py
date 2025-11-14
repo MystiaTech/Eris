@@ -96,6 +96,11 @@ class RuleEngine:
     def add_rule(self, rule):
         # Add rule to the RuleDB
         self.rule_db.add_rule(rule)
+        # Also add to in-memory rules list for immediate matching
+        # Check if rule already exists in memory to avoid duplicates
+        if not any(r.input_pattern == rule.input_pattern
+                   for r in self.rules):
+            self.rules.append(rule)
 
     def match_rule(self, user_input):
         # Implement rule matching logic here
