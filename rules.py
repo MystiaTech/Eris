@@ -5,6 +5,7 @@ class Rules:
         self.input_pattern = input_pattern
         self.output_pattern = output_pattern
 
+
 # Original rules
 original_rules = [
     Rules("hello", "Hi there!"),

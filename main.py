@@ -34,12 +34,14 @@ for rule in all_rules:
 async def on_ready():
     print(f'{client.user.name} has connected to Discord!')
 
+
 @client.event
 async def on_message(message):
     if message.author == client.user:
         return
 
-    # Process the message and generate a response using RuleEngine and ContinuousLearning
+    # Process the message and generate a response
+    # using RuleEngine and ContinuousLearning
     response = rule_engine.process_message(message.content)
     if response is None:
         response = learning_engine.process_message(message.content)
@@ -54,14 +56,23 @@ async def on_message(message):
 
     # Define a check function for reaction event
     def check(reaction, user):
-        return user == message.author and str(reaction.emoji) in [f'{i}\uFE0F\u20E3' for i in range(1, 6)] and reaction.message.id == response_message.id
+        return (
+            user == message.author and
+            str(reaction.emoji) in
+            [f'{i}\uFE0F\u20E3' for i in range(1, 6)] and
+            reaction.message.id == response_message.id
+        )
 
     # Wait for user reaction
     try:
-        reaction, _ = await client.wait_for('reaction_add', timeout=60.0, check=check)
+        reaction, _ = await client.wait_for(
+            'reaction_add', timeout=60.0, check=check
+        )
         feedback = int(reaction.emoji[0])
         # Pass the feedback to ContinuousLearning for updating rules
-        learning_engine.process_message(message.content, user_feedback=feedback)
+        learning_engine.process_message(
+            message.content, user_feedback=feedback
+        )
     except asyncio.TimeoutError:
         feedback = None
 
@@ -70,13 +81,19 @@ async def on_message(message):
 
     # Check if the message is from Eris herself and not a user
     if message.author == client.user:
-        # Check if the response is not None, indicating that Eris generated a response
+        # Check if the response is not None, indicating that
+        # Eris generated a response
         if response is not None:
-            # Create a new rule with the input pattern as the original message content
-            # and the output pattern as the generated response
-            new_rule = Rule(input_pattern=message.content, output_pattern=response)
+            # Create a new rule with the input pattern as the
+            # original message content and the output pattern as
+            # the generated response
+            new_rule = Rule(
+                input_pattern=message.content,
+                output_pattern=response
+            )
             # Add the new rule to the RuleDB and RuleEngine
             rule_db.add_rule(new_rule)
             rule_engine.add_rule(new_rule)
+
 
 client.run(TOKEN)
