@@ -5,7 +5,6 @@ This tests the rule engine and learning system without Discord.
 """
 
 import os
-import sqlite3
 from rule_engine import Rule, RuleDB, RuleEngine
 from continuous_learning import ContinuousLearning
 from rules import all_rules
